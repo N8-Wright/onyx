@@ -17,12 +17,12 @@ public class HttpListener
         _serverSocket.close();
     }
 
-    public void receive() throws IOException
+    HttpListenerContext receive() throws IOException
     {
         var client = _serverSocket.accept();
         var httpMessage = receiveHttpMessage(client);
 
-        System.out.println(httpMessage);
+        return new HttpListenerContext(new HttpListenerRequest(httpMessage), new HttpListenerResponse());
     }
 
     private String receiveHttpMessage(Socket sock) throws IOException

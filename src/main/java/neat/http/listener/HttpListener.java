@@ -1,16 +1,14 @@
 package neat.http.listener;
 
-import neat.http.listener.HttpListenerContext;
-import neat.http.listener.HttpListenerRequest;
-import neat.http.listener.HttpListenerResponse;
 import neat.http.parser.HttpRequestParser;
 
 import java.io.IOException;
-import java.net.*;
+import java.net.ServerSocket;
+import java.net.Socket;
 
 public class HttpListener
 {
-    private ServerSocket _serverSocket;
+    private final ServerSocket _serverSocket;
 
     public HttpListener(int port) throws IOException
     {

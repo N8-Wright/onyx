@@ -30,7 +30,7 @@ public class HttpRequestParser
             entry("HTTP/2.0", HttpVersion.HTTP2));
 
     private int _index;
-    private String _message;
+    private final String _message;
 
     public HttpRequestParser(String httpMessage)
     {

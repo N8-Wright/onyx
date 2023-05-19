@@ -14,10 +14,7 @@ class HttpRequestParserTest
     public void parseMethod_NoWhitespaceAtEnd_ExceptionThrown(String method)
     {
         var parser = new HttpRequestParser(method);
-        Assertions.assertThrows(HttpRequestParserEOFException.class, () ->
-        {
-            parser.parse();
-        });
+        Assertions.assertThrows(HttpRequestParserEOFException.class, parser::parse);
     }
 
     @Test
@@ -25,9 +22,6 @@ class HttpRequestParserTest
     {
         var request = "GET /helloWorld HTTP/1.0\r\n";
         var parser = new HttpRequestParser(request);
-        Assertions.assertThrows(HttpRequestParserEOFException.class, () ->
-        {
-            parser.parse();
-        });
+        Assertions.assertThrows(HttpRequestParserEOFException.class, parser::parse);
     }
 }

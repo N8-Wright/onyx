@@ -48,11 +48,16 @@ public class HttpRequestParser
     private HttpMethod parseMethod()
     {
         int startIndex = _index;
-        while (!atWhitespace())
+        while (true)
         {
             if (atEOF())
             {
-                throw new HttpRequestParserException("Unexpected EOF");
+                throw new HttpRequestParseEOFException();
+            }
+
+            if (atWhitespace())
+            {
+                break;
             }
 
             if (_index - startIndex > MaxMethodLength)

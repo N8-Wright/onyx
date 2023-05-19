@@ -1,4 +1,4 @@
-package neat.http;
+package neat.http.listener;
 
 public class HttpListenerResponse {
 }

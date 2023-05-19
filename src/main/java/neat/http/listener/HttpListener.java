@@ -1,4 +1,9 @@
-package neat.http;
+package neat.http.listener;
+
+import neat.http.listener.HttpListenerContext;
+import neat.http.listener.HttpListenerRequest;
+import neat.http.listener.HttpListenerResponse;
+import neat.http.parser.HttpRequestParser;
 
 import java.io.IOException;
 import java.net.*;

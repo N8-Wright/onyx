@@ -1,6 +1,6 @@
 package neat;
 
-import neat.http.*;
+import neat.http.listener.HttpListener;
 
 public class Main
 {

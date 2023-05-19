@@ -1,4 +1,7 @@
-package neat.http;
+package neat.http.parser;
+
+import neat.http.constants.HttpMethod;
+import neat.http.constants.HttpVersion;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -52,7 +55,7 @@ public class HttpRequestParser
         {
             if (atEOF())
             {
-                throw new HttpRequestParseEOFException();
+                throw new HttpRequestParserEOFException();
             }
 
             if (atWhitespace())
@@ -80,7 +83,7 @@ public class HttpRequestParser
         {
             if (atEOF())
             {
-                throw new HttpRequestParserException("Unexpected EOF");
+                throw new HttpRequestParserEOFException();
             }
 
             if (_index - startIndex > MaxRequestTargetLength)
@@ -103,7 +106,7 @@ public class HttpRequestParser
         {
             if (_index + 1 >= _message.length())
             {
-                throw new HttpRequestParserException("Unexpected EOF");
+                throw new HttpRequestParserEOFException();
             }
 
             if (_index - startIndex > MaxVersionLength)
@@ -131,7 +134,7 @@ public class HttpRequestParser
         {
             if (_index + 1 >= _message.length())
             {
-                throw new HttpRequestParserException("Unexpected EOF");
+                throw new HttpRequestParserEOFException();
             }
 
             if (atNewline())
@@ -166,7 +169,7 @@ public class HttpRequestParser
         {
             if (_index + 1 >= _message.length())
             {
-                throw new HttpRequestParserException("Unexpected EOF");
+                throw new HttpRequestParserEOFException();
             }
 
             if (atNewline())

@@ -17,11 +17,12 @@ public class HttpListener
         _serverSocket.close();
     }
 
-    HttpListenerContext receive() throws IOException
+    public HttpListenerContext receive() throws IOException
     {
         var client = _serverSocket.accept();
         var httpMessage = receiveHttpMessage(client);
-
+        var parser = new HttpRequestParser(httpMessage);
+        parser.parse();
         return new HttpListenerContext(new HttpListenerRequest(httpMessage), new HttpListenerResponse());
     }
 

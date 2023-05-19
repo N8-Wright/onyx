@@ -1,5 +1,6 @@
 package neat.http;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import static java.util.Map.entry;
@@ -39,6 +40,7 @@ public class HttpRequestParser
         var method = parseMethod();
         var requestTarget = parseRequestTarget();
         var version = parseVersion();
+        var headers = parseHeaders();
 
         return new HttpRequestParserResult();
     }
@@ -104,7 +106,7 @@ public class HttpRequestParser
                 throw new HttpRequestParserException("Exceeded maximum method length");
             }
 
-            if (_message.charAt(_index) == '\r' && _message.charAt(_index + 1) == '\n')
+            if (atNewline())
             {
                 break;
             }
@@ -115,6 +117,64 @@ public class HttpRequestParser
         var version = _message.substring(startIndex, _index);
         skipNewline();
         return HttpVersions.get(version);
+    }
+
+    private HashMap<String, String> parseHeaders()
+    {
+        var headers = new HashMap<String, String>();
+        while (true)
+        {
+            if (_index + 1 >= _message.length())
+            {
+                throw new HttpRequestParserException("Unexpected EOF");
+            }
+
+            if (atNewline())
+            {
+                break;
+            }
+
+            headers.put(parseHeaderKey(), parseHeaderValue());
+        }
+
+        skipNewline();
+        return headers;
+    }
+
+    private String parseHeaderKey()
+    {
+        int startIndex = _index;
+        while (!atEOF() && _message.charAt(_index) != ':')
+        {
+            _index++;
+        }
+
+        var key = _message.substring(startIndex, _index);
+        _index++; // Skip over ':'
+        return key;
+    }
+
+    private String parseHeaderValue()
+    {
+        int startIndex = _index;
+        while (true)
+        {
+            if (_index + 1 >= _message.length())
+            {
+                throw new HttpRequestParserException("Unexpected EOF");
+            }
+
+            if (atNewline())
+            {
+                break;
+            }
+
+            _index++;
+        }
+
+        var value = _message.substring(startIndex, _index);
+        skipNewline();
+        return value;
     }
 
     private boolean atEOF()
@@ -138,5 +198,10 @@ public class HttpRequestParser
     private void skipNewline()
     {
         _index += 2;
+    }
+
+    private boolean atNewline()
+    {
+        return _message.charAt(_index) == '\r' && _message.charAt(_index + 1) == '\n';
     }
 }

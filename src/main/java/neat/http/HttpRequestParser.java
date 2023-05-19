@@ -8,6 +8,7 @@ public class HttpRequestParser
 {
     static final int MaxMethodLength = 7;
     static final int MaxRequestTargetLength = 512;
+    static final int MaxVersionLength = 8;
     static final Map<String, HttpMethod> HttpMethods = Map.ofEntries(
             entry("CONNECT", HttpMethod.Connect),
             entry("DELETE", HttpMethod.Delete),
@@ -18,6 +19,11 @@ public class HttpRequestParser
             entry("POST", HttpMethod.Post),
             entry("PUT", HttpMethod.Put),
             entry("TRACE", HttpMethod.Trace));
+
+    static final Map<String, HttpVersion> HttpVersions = Map.ofEntries(
+            entry("HTTP/1.0", HttpVersion.HTTP1),
+            entry("HTTP/1.1", HttpVersion.HTTP11),
+            entry("HTTP/2.0", HttpVersion.HTTP2));
 
     private int _index;
     private String _message;
@@ -32,6 +38,7 @@ public class HttpRequestParser
     {
         var method = parseMethod();
         var requestTarget = parseRequestTarget();
+        var version = parseVersion();
 
         return new HttpRequestParserResult();
     }
@@ -82,6 +89,34 @@ public class HttpRequestParser
         return requestTarget;
     }
 
+    private HttpVersion parseVersion()
+    {
+        int startIndex = _index;
+        while (true)
+        {
+            if (_index + 1 >= _message.length())
+            {
+                throw new HttpRequestParserException("Unexpected EOF");
+            }
+
+            if (_index - startIndex > MaxVersionLength)
+            {
+                throw new HttpRequestParserException("Exceeded maximum method length");
+            }
+
+            if (_message.charAt(_index) == '\r' && _message.charAt(_index + 1) == '\n')
+            {
+                break;
+            }
+
+            _index++;
+        }
+
+        var version = _message.substring(startIndex, _index);
+        skipNewline();
+        return HttpVersions.get(version);
+    }
+
     private boolean atEOF()
     {
         return _index >= _message.length();
@@ -98,5 +133,10 @@ public class HttpRequestParser
         {
             _index++;
         }
+    }
+
+    private void skipNewline()
+    {
+        _index += 2;
     }
 }

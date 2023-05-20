@@ -25,8 +25,15 @@ public class HttpListener
         var client = _serverSocket.accept();
         var httpMessage = receiveHttpMessage(client);
         var parser = new HttpRequestParser(httpMessage);
-        parser.parse();
-        return new HttpListenerContext(new HttpListenerRequest(httpMessage), new HttpListenerResponse());
+        var result = parser.parse();
+        return new HttpListenerContext(
+                new HttpListenerRequest(
+                        result.Method,
+                        result.Version,
+                        result.Url,
+                        result.Headers,
+                        httpMessage),
+                new HttpListenerResponse());
     }
 
     private String receiveHttpMessage(Socket sock) throws IOException

@@ -16,8 +16,8 @@ public class HttpRequestParserResult
         Headers = headers;
     }
 
-    public HttpMethod Method;
-    public HttpVersion Version;
-    public String Url;
-    public HashMap<String, String> Headers;
+    public final HttpMethod Method;
+    public final HttpVersion Version;
+    public final String Url;
+    public final HashMap<String, String> Headers;
 }

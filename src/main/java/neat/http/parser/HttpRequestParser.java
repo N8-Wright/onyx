@@ -45,7 +45,7 @@ public class HttpRequestParser
         var version = parseVersion();
         var headers = parseHeaders();
 
-        return new HttpRequestParserResult();
+        return new HttpRequestParserResult(method, version, requestTarget, headers);
     }
 
     private HttpMethod parseMethod()
@@ -159,6 +159,18 @@ public class HttpRequestParser
 
         var key = _message.substring(startIndex, _index);
         _index++; // Skip over ':'
+
+        if (atEOF())
+        {
+            throw new HttpRequestParserEOFException();
+        }
+
+        if (_message.charAt(_index) != ' ')
+        {
+            throw new HttpRequestParserException("Expected space preceding header value");
+        }
+
+        _index++; // Skip over ' '
         return key;
     }
 

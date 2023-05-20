@@ -1,10 +1,12 @@
 package neat.http.listener;
 
+import neat.http.constants.HttpMethod;
 import neat.http.parser.HttpRequestParser;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
 
 public class HttpListener
 {
@@ -26,6 +28,19 @@ public class HttpListener
         var httpMessage = receiveHttpMessage(client);
         var parser = new HttpRequestParser(httpMessage);
         var result = parser.parse();
+        try
+        {
+            byte[] content = receiveExtraContent(client, result.Method, result.Headers);
+        }
+        catch (HeaderNotFoundException e)
+        {
+            // TODO: return a specific response
+        }
+        catch (Exception e)
+        {
+            // TODO: return a specific response
+        }
+
         return new HttpListenerContext(
                 new HttpListenerRequest(
                         result.Method,
@@ -34,6 +49,44 @@ public class HttpListener
                         result.Headers,
                         httpMessage),
                 new HttpListenerResponse());
+    }
+
+    private byte[] receiveExtraContent(Socket sock, HttpMethod method, HashMap<String, String> headers) throws IOException
+    {
+        switch (method)
+        {
+            case Post:
+            case Put:
+                var contentType = headers.get("Content-Type");
+                var contentLengthStr = headers.get("Content-Length");
+                if (contentType == null)
+                {
+                    throw new HeaderNotFoundException("Content-Type");
+                }
+
+                if (contentLengthStr == null)
+                {
+                    throw new HeaderNotFoundException("Content-Length");
+                }
+
+                var contentLength = Integer.parseInt(contentLengthStr);
+                if (contentLength >= 0 && contentLength < 16_000_000) // 16 megabytes
+                {
+                    throw new IOException("Invalid Content-Length");
+                }
+
+                var content = new byte[contentLength];
+                var inputStream = sock.getInputStream();
+                var bytesRead = inputStream.read(content);
+                if (bytesRead != contentLength)
+                {
+                    throw new IOException("Unable to read entirety of expected content");
+                }
+
+                return content;
+            default:
+                return null;
+        }
     }
 
     private String receiveHttpMessage(Socket sock) throws IOException

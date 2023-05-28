@@ -2,6 +2,7 @@ package neat.http.parser;
 
 import neat.http.constants.HttpMethod;
 import neat.http.constants.HttpVersion;
+import neat.util.ByteArray;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,26 +14,26 @@ public class HttpRequestParser
     static final int MaxMethodLength = 7;
     static final int MaxRequestTargetLength = 512;
     static final int MaxVersionLength = 8;
-    static final Map<String, HttpMethod> HttpMethods = Map.ofEntries(
-            entry("CONNECT", HttpMethod.Connect),
-            entry("DELETE", HttpMethod.Delete),
-            entry("GET", HttpMethod.Get),
-            entry("HEAD", HttpMethod.Head),
-            entry("OPTIONS", HttpMethod.Options),
-            entry("PATCH", HttpMethod.Patch),
-            entry("POST", HttpMethod.Post),
-            entry("PUT", HttpMethod.Put),
-            entry("TRACE", HttpMethod.Trace));
+    static final Map<ByteArray, HttpMethod> HttpMethods = Map.ofEntries(
+            entry(ByteArray.of("CONNECT"), HttpMethod.Connect),
+            entry(ByteArray.of("DELETE"), HttpMethod.Delete),
+            entry(ByteArray.of("GET"), HttpMethod.Get),
+            entry(ByteArray.of("HEAD"), HttpMethod.Head),
+            entry(ByteArray.of("OPTIONS"), HttpMethod.Options),
+            entry(ByteArray.of("PATCH"), HttpMethod.Patch),
+            entry(ByteArray.of("POST"), HttpMethod.Post),
+            entry(ByteArray.of("PUT"), HttpMethod.Put),
+            entry(ByteArray.of("TRACE"), HttpMethod.Trace));
 
-    static final Map<String, HttpVersion> HttpVersions = Map.ofEntries(
-            entry("HTTP/1.0", HttpVersion.HTTP1),
-            entry("HTTP/1.1", HttpVersion.HTTP11),
-            entry("HTTP/2.0", HttpVersion.HTTP2));
+    static final Map<ByteArray, HttpVersion> HttpVersions = Map.ofEntries(
+            entry(ByteArray.of("HTTP/1.0"), HttpVersion.HTTP1),
+            entry(ByteArray.of("HTTP/1.1"), HttpVersion.HTTP11),
+            entry(ByteArray.of("HTTP/2.0"), HttpVersion.HTTP2));
 
     private int _index;
-    private final String _message;
+    private final ByteArray _message;
 
-    public HttpRequestParser(String httpMessage)
+    public HttpRequestParser(ByteArray httpMessage)
     {
         _index = 0;
         _message = httpMessage;
@@ -71,12 +72,12 @@ public class HttpRequestParser
             _index++;
         }
 
-        var method = _message.substring(startIndex, _index);
+        var buffer = ByteArray.of(_message.slice(startIndex, _index));
         skipWhitespace();
-        return HttpMethods.get(method);
+        return HttpMethods.get(buffer);
     }
 
-    private String parseRequestTarget()
+    private byte[] parseRequestTarget()
     {
         int startIndex = _index;
         while (!atWhitespace())
@@ -94,7 +95,7 @@ public class HttpRequestParser
             _index++;
         }
 
-        var requestTarget = _message.substring(startIndex, _index);
+        var requestTarget = _message.slice(startIndex, _index);
         skipWhitespace();
         return requestTarget;
     }
@@ -122,14 +123,14 @@ public class HttpRequestParser
             _index++;
         }
 
-        var version = _message.substring(startIndex, _index);
+        var version = ByteArray.of(_message.slice(startIndex, _index));
         skipNewline();
         return HttpVersions.get(version);
     }
 
-    private HashMap<String, String> parseHeaders()
+    private HashMap<ByteArray, byte[]> parseHeaders()
     {
-        var headers = new HashMap<String, String>();
+        var headers = new HashMap<ByteArray, byte[]>();
         while (true)
         {
             if (_index + 1 >= _message.length())
@@ -142,22 +143,22 @@ public class HttpRequestParser
                 break;
             }
 
-            headers.put(parseHeaderKey(), parseHeaderValue());
+            headers.put(ByteArray.of(parseHeaderKey()), parseHeaderValue());
         }
 
         skipNewline();
         return headers;
     }
 
-    private String parseHeaderKey()
+    private byte[] parseHeaderKey()
     {
         int startIndex = _index;
-        while (!atEOF() && _message.charAt(_index) != ':')
+        while (!atEOF() && _message.get(_index) != ':')
         {
             _index++;
         }
 
-        var key = _message.substring(startIndex, _index);
+        var key = _message.slice(startIndex, _index);
         _index++; // Skip over ':'
 
         if (atEOF())
@@ -165,7 +166,7 @@ public class HttpRequestParser
             throw new HttpRequestParserEOFException();
         }
 
-        if (_message.charAt(_index) != ' ')
+        if (_message.get(_index) != ' ')
         {
             throw new HttpRequestParserException("Expected space preceding header value");
         }
@@ -174,7 +175,7 @@ public class HttpRequestParser
         return key;
     }
 
-    private String parseHeaderValue()
+    private byte[] parseHeaderValue()
     {
         int startIndex = _index;
         while (true)
@@ -192,7 +193,7 @@ public class HttpRequestParser
             _index++;
         }
 
-        var value = _message.substring(startIndex, _index);
+        var value = _message.slice(startIndex, _index);
         skipNewline();
         return value;
     }
@@ -204,7 +205,7 @@ public class HttpRequestParser
 
     private boolean atWhitespace()
     {
-        return _message.charAt(_index) == ' ';
+        return _message.get(_index) == ' ';
     }
 
     private void skipWhitespace()
@@ -222,6 +223,6 @@ public class HttpRequestParser
 
     private boolean atNewline()
     {
-        return _message.charAt(_index) == '\r' && _message.charAt(_index + 1) == '\n';
+        return _message.get(_index) == '\r' && _message.get(_index + 1) == '\n';
     }
 }

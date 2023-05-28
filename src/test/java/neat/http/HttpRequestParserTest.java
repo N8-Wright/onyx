@@ -4,6 +4,7 @@ import neat.http.constants.HttpMethod;
 import neat.http.constants.HttpVersion;
 import neat.http.parser.HttpRequestParser;
 import neat.http.parser.HttpRequestParserEOFException;
+import neat.util.ByteArray;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -20,7 +21,7 @@ class HttpRequestParserTest
     @ValueSource(strings = {"CONNECT", "DELETE", "GET", "HEAD", "OPTIONS", "PATH", "POST", "PUT", "TRACE"})
     public void parseMethod_NoWhitespaceAtEnd_ExceptionThrown(String method)
     {
-        var parser = new HttpRequestParser(method);
+        var parser = new HttpRequestParser(ByteArray.of(method));
         Assertions.assertThrows(HttpRequestParserEOFException.class, parser::parse);
     }
 
@@ -28,7 +29,7 @@ class HttpRequestParserTest
     public void parseRequest_MissingSecondNewline_ExceptionThrown()
     {
         var request = "GET /helloWorld HTTP/1.0\r\n";
-        var parser = new HttpRequestParser(request);
+        var parser = new HttpRequestParser(ByteArray.of(request));
         Assertions.assertThrows(HttpRequestParserEOFException.class, parser::parse);
     }
 
@@ -36,14 +37,24 @@ class HttpRequestParserTest
     @MethodSource("httpMethodSource")
     public void parseRequest_ValidRequest_ResultsReturned(String method, HttpMethod expectedMethod)
     {
-        var request = String.format("%s / HTTP/1.1\r\nTest: Value\r\n\r\n", method);
+        var request = ByteArray.of(String.format("%s / HTTP/1.1\r\nTest: Value\r\n\r\n", method));
         var parser = new HttpRequestParser(request);
         var result = parser.parse();
 
-        Assertions.assertEquals(result.Method, expectedMethod);
-        Assertions.assertEquals(result.Url, "/");
-        Assertions.assertEquals(result.Version, HttpVersion.HTTP11);
-        Assertions.assertEquals(result.Headers, Map.ofEntries(Map.entry("Test", "Value")));
+        Assertions.assertEquals(expectedMethod, result.Method);
+        Assertions.assertArrayEquals("/".getBytes(), result.Url);
+        Assertions.assertEquals(HttpVersion.HTTP11, result.Version);
+
+        var expectedHeaders = Map.ofEntries(Map.entry(ByteArray.of("Test"), "Value".getBytes()));
+        Assertions.assertEquals(expectedHeaders.keySet(), result.Headers.keySet());
+
+        for (var key : expectedHeaders.keySet())
+        {
+            var expectedValue = expectedHeaders.get(key);
+            var value = result.Headers.get(key);
+
+            Assertions.assertArrayEquals(expectedValue, value);
+        }
     }
 
     public static Stream<Arguments> httpMethodSource()

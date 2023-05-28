@@ -2,15 +2,19 @@ package neat.http.listener;
 
 import neat.http.constants.HttpMethod;
 import neat.http.parser.HttpRequestParser;
+import neat.util.ByteArray;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 
 public class HttpListener
 {
     private final ServerSocket _serverSocket;
+    private final ByteArray _contentType = ByteArray.of("Content-Type");
+    private final ByteArray _contentLength = ByteArray.of("Content-Length");
 
     public HttpListener(int port) throws IOException
     {
@@ -51,14 +55,14 @@ public class HttpListener
                 new HttpListenerResponse());
     }
 
-    private byte[] receiveExtraContent(Socket sock, HttpMethod method, HashMap<String, String> headers) throws IOException
+    private byte[] receiveExtraContent(Socket sock, HttpMethod method, HashMap<ByteArray, byte[]> headers) throws IOException
     {
         switch (method)
         {
             case Post:
             case Put:
-                var contentType = headers.get("Content-Type");
-                var contentLengthStr = headers.get("Content-Length");
+                var contentType = headers.get(_contentType);
+                var contentLengthStr = headers.get(_contentLength);
                 if (contentType == null)
                 {
                     throw new HeaderNotFoundException("Content-Type");
@@ -69,7 +73,7 @@ public class HttpListener
                     throw new HeaderNotFoundException("Content-Length");
                 }
 
-                var contentLength = Integer.parseInt(contentLengthStr);
+                var contentLength = ByteBuffer.wrap(contentLengthStr).getInt();
                 if (contentLength >= 0 && contentLength < 16_000_000) // 16 megabytes
                 {
                     throw new IOException("Invalid Content-Length");
@@ -89,33 +93,28 @@ public class HttpListener
         }
     }
 
-    private String receiveHttpMessage(Socket sock) throws IOException
+    private ByteArray receiveHttpMessage(Socket sock) throws IOException
     {
         var stream = sock.getInputStream();
-        var message = new StringBuilder();
+        var message = new ByteArray(1024);
         var buffer = new byte[1024];
 
         while (true)
         {
             int bytesRead = stream.read(buffer);
-
-            message.ensureCapacity(message.length() + bytesRead);
-            for (int i = 0; i < bytesRead; i++)
-            {
-                message.append((char)buffer[i]);
-            }
+            message.push(buffer, bytesRead);
 
             var length = message.length();
-            if (message.charAt(length - 4) == '\r' &&
-                    message.charAt(length - 3) == '\n' &&
-                    message.charAt(length - 2) == '\r' &&
-                    message.charAt(length - 1) == '\n')
+            if (message.get(length - 4) == '\r' &&
+                    message.get(length - 3) == '\n' &&
+                    message.get(length - 2) == '\r' &&
+                    message.get(length - 1) == '\n')
             {
                 break;
             }
         }
 
-        return message.toString();
+        return message;
     }
 }
 

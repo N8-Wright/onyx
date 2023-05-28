@@ -1,8 +1,8 @@
-package neat.http.parser;
+package onyx.http.parser;
 
-import neat.http.constants.HttpMethod;
-import neat.http.constants.HttpVersion;
-import neat.util.ByteSpan;
+import onyx.http.constants.HttpMethod;
+import onyx.http.constants.HttpVersion;
+import onyx.util.ByteSpan;
 
 import java.util.HashMap;
 

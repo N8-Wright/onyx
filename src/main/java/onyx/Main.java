@@ -1,6 +1,6 @@
-package neat;
+package onyx;
 
-import neat.http.listener.HttpListener;
+import onyx.http.listener.HttpListener;
 
 public class Main
 {

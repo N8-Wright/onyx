@@ -1,4 +1,4 @@
-package neat.http.parser;
+package onyx.http.parser;
 
 public class HttpRequestParserEOFException extends RuntimeException
 {

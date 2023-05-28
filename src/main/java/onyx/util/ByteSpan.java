@@ -1,4 +1,4 @@
-package neat.util;
+package onyx.util;
 
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;

@@ -1,9 +1,9 @@
-package neat.http.listener;
+package onyx.http.listener;
 
-import neat.http.constants.HttpMethod;
-import neat.http.parser.HttpRequestParser;
-import neat.util.ByteArray;
-import neat.util.ByteSpan;
+import onyx.http.constants.HttpMethod;
+import onyx.http.parser.HttpRequestParser;
+import onyx.util.ByteArray;
+import onyx.util.ByteSpan;
 
 import java.io.IOException;
 import java.net.ServerSocket;

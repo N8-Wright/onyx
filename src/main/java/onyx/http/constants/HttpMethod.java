@@ -1,4 +1,4 @@
-package neat.http.constants;
+package onyx.http.constants;
 
 public enum HttpMethod
 {

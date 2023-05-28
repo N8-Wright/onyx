@@ -1,11 +1,11 @@
-package neat.http;
+package onyx.http;
 
-import neat.http.constants.HttpMethod;
-import neat.http.constants.HttpVersion;
-import neat.http.parser.HttpRequestParser;
-import neat.http.parser.HttpRequestParserEOFException;
-import neat.util.ByteArray;
-import neat.util.ByteSpan;
+import onyx.http.constants.HttpMethod;
+import onyx.http.constants.HttpVersion;
+import onyx.http.parser.HttpRequestParser;
+import onyx.http.parser.HttpRequestParserEOFException;
+import onyx.util.ByteArray;
+import onyx.util.ByteSpan;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

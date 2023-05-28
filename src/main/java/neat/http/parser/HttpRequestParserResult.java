@@ -2,14 +2,14 @@ package neat.http.parser;
 
 import neat.http.constants.HttpMethod;
 import neat.http.constants.HttpVersion;
-import neat.util.ByteArray;
+import neat.util.ByteSpan;
 
 import java.util.HashMap;
 
 public class HttpRequestParserResult
 {
 
-    public HttpRequestParserResult(HttpMethod method, HttpVersion version, byte[] url, HashMap<ByteArray, byte[]> headers)
+    public HttpRequestParserResult(HttpMethod method, HttpVersion version, ByteSpan url, HashMap<ByteSpan, ByteSpan> headers)
     {
         Method = method;
         Version = version;
@@ -19,6 +19,6 @@ public class HttpRequestParserResult
 
     public final HttpMethod Method;
     public final HttpVersion Version;
-    public final byte[] Url;
-    public final HashMap<ByteArray, byte[]> Headers;
+    public final ByteSpan Url;
+    public final HashMap<ByteSpan, ByteSpan> Headers;
 }

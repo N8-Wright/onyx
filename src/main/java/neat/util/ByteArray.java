@@ -1,6 +1,6 @@
 package neat.util;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public class ByteArray
@@ -22,7 +22,7 @@ public class ByteArray
 
     public static ByteArray of(String data)
     {
-        return new ByteArray(data.getBytes(Charset.forName("UTF8")));
+        return new ByteArray(data.getBytes(StandardCharsets.UTF_8));
     }
 
     public static ByteArray of(byte[] data)
@@ -48,7 +48,7 @@ public class ByteArray
             _data[i] = buffer[j];
         }
 
-        _offset += buffer.length;
+        _offset += length;
     }
 
     public byte get(int index)
@@ -61,9 +61,9 @@ public class ByteArray
         return _offset;
     }
 
-    public byte[] slice(int from, int to)
+    public ByteSpan slice(int from, int to)
     {
-        return Arrays.copyOfRange(_data, from, to);
+        return new ByteSpan(from, to, _data);
     }
 
     private void resize(int capacity)
@@ -75,12 +75,31 @@ public class ByteArray
     @Override
     public boolean equals(Object other)
     {
-        if (!(other instanceof ByteArray))
+        if (other instanceof ByteSpan)
+        {
+            if (((ByteSpan)other).End - ((ByteSpan)other).Start != length())
+            {
+                return false;
+            }
+
+            for (int i = ((ByteSpan)other).Start, j = 0; i < ((ByteSpan)other).End; i++, j++)
+            {
+                if (((ByteSpan)other).Data[i] != get(j))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+        else if (other instanceof ByteArray)
+        {
+            return Arrays.equals(_data, ((ByteArray)other)._data);
+        }
+        else
         {
             return false;
         }
-
-        return Arrays.equals(_data, ((ByteArray)other)._data);
     }
 
     @Override

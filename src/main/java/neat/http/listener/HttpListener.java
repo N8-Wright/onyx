@@ -3,11 +3,11 @@ package neat.http.listener;
 import neat.http.constants.HttpMethod;
 import neat.http.parser.HttpRequestParser;
 import neat.util.ByteArray;
+import neat.util.ByteSpan;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.ByteBuffer;
 import java.util.HashMap;
 
 public class HttpListener
@@ -55,25 +55,25 @@ public class HttpListener
                 new HttpListenerResponse());
     }
 
-    private byte[] receiveExtraContent(Socket sock, HttpMethod method, HashMap<ByteArray, byte[]> headers) throws IOException
+    private byte[] receiveExtraContent(Socket sock, HttpMethod method, HashMap<ByteSpan, ByteSpan> headers) throws IOException
     {
         switch (method)
         {
             case Post:
             case Put:
                 var contentType = headers.get(_contentType);
-                var contentLengthStr = headers.get(_contentLength);
+                var contentLengthSpan = headers.get(_contentLength);
                 if (contentType == null)
                 {
                     throw new HeaderNotFoundException("Content-Type");
                 }
 
-                if (contentLengthStr == null)
+                if (contentLengthSpan == null)
                 {
                     throw new HeaderNotFoundException("Content-Length");
                 }
 
-                var contentLength = ByteBuffer.wrap(contentLengthStr).getInt();
+                var contentLength = contentLengthSpan.getInt();
                 if (contentLength >= 0 && contentLength < 16_000_000) // 16 megabytes
                 {
                     throw new IOException("Invalid Content-Length");

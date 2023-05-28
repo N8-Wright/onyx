@@ -3,6 +3,7 @@ package neat.http.parser;
 import neat.http.constants.HttpMethod;
 import neat.http.constants.HttpVersion;
 import neat.util.ByteArray;
+import neat.util.ByteSpan;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -72,12 +73,12 @@ public class HttpRequestParser
             _index++;
         }
 
-        var buffer = ByteArray.of(_message.slice(startIndex, _index));
+        var buffer = _message.slice(startIndex, _index);
         skipWhitespace();
         return HttpMethods.get(buffer);
     }
 
-    private byte[] parseRequestTarget()
+    private ByteSpan parseRequestTarget()
     {
         int startIndex = _index;
         while (!atWhitespace())
@@ -123,14 +124,14 @@ public class HttpRequestParser
             _index++;
         }
 
-        var version = ByteArray.of(_message.slice(startIndex, _index));
+        var version = _message.slice(startIndex, _index);
         skipNewline();
         return HttpVersions.get(version);
     }
 
-    private HashMap<ByteArray, byte[]> parseHeaders()
+    private HashMap<ByteSpan, ByteSpan> parseHeaders()
     {
-        var headers = new HashMap<ByteArray, byte[]>();
+        var headers = new HashMap<ByteSpan, ByteSpan>();
         while (true)
         {
             if (_index + 1 >= _message.length())
@@ -143,14 +144,14 @@ public class HttpRequestParser
                 break;
             }
 
-            headers.put(ByteArray.of(parseHeaderKey()), parseHeaderValue());
+            headers.put(parseHeaderKey(), parseHeaderValue());
         }
 
         skipNewline();
         return headers;
     }
 
-    private byte[] parseHeaderKey()
+    private ByteSpan parseHeaderKey()
     {
         int startIndex = _index;
         while (!atEOF() && _message.get(_index) != ':')
@@ -175,7 +176,7 @@ public class HttpRequestParser
         return key;
     }
 
-    private byte[] parseHeaderValue()
+    private ByteSpan parseHeaderValue()
     {
         int startIndex = _index;
         while (true)

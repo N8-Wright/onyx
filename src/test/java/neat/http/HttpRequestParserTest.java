@@ -42,10 +42,10 @@ class HttpRequestParserTest
         var result = parser.parse();
 
         Assertions.assertEquals(expectedMethod, result.Method);
-        Assertions.assertArrayEquals("/".getBytes(), result.Url);
+        Assertions.assertEquals(ByteArray.of("/"), result.Url);
         Assertions.assertEquals(HttpVersion.HTTP11, result.Version);
 
-        var expectedHeaders = Map.ofEntries(Map.entry(ByteArray.of("Test"), "Value".getBytes()));
+        var expectedHeaders = Map.ofEntries(Map.entry(ByteArray.of("Test"), ByteArray.of("Value")));
         Assertions.assertEquals(expectedHeaders.keySet(), result.Headers.keySet());
 
         for (var key : expectedHeaders.keySet())
@@ -53,7 +53,7 @@ class HttpRequestParserTest
             var expectedValue = expectedHeaders.get(key);
             var value = result.Headers.get(key);
 
-            Assertions.assertArrayEquals(expectedValue, value);
+            Assertions.assertEquals(expectedValue, value);
         }
     }
 

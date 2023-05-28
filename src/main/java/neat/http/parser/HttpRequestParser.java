@@ -15,21 +15,21 @@ public class HttpRequestParser
     static final int MaxMethodLength = 7;
     static final int MaxRequestTargetLength = 512;
     static final int MaxVersionLength = 8;
-    static final Map<ByteArray, HttpMethod> HttpMethods = Map.ofEntries(
-            entry(ByteArray.of("CONNECT"), HttpMethod.Connect),
-            entry(ByteArray.of("DELETE"), HttpMethod.Delete),
-            entry(ByteArray.of("GET"), HttpMethod.Get),
-            entry(ByteArray.of("HEAD"), HttpMethod.Head),
-            entry(ByteArray.of("OPTIONS"), HttpMethod.Options),
-            entry(ByteArray.of("PATCH"), HttpMethod.Patch),
-            entry(ByteArray.of("POST"), HttpMethod.Post),
-            entry(ByteArray.of("PUT"), HttpMethod.Put),
-            entry(ByteArray.of("TRACE"), HttpMethod.Trace));
+    static final Map<ByteSpan, HttpMethod> HttpMethods = Map.ofEntries(
+            entry(ByteSpan.of("CONNECT"), HttpMethod.Connect),
+            entry(ByteSpan.of("DELETE"), HttpMethod.Delete),
+            entry(ByteSpan.of("GET"), HttpMethod.Get),
+            entry(ByteSpan.of("HEAD"), HttpMethod.Head),
+            entry(ByteSpan.of("OPTIONS"), HttpMethod.Options),
+            entry(ByteSpan.of("PATCH"), HttpMethod.Patch),
+            entry(ByteSpan.of("POST"), HttpMethod.Post),
+            entry(ByteSpan.of("PUT"), HttpMethod.Put),
+            entry(ByteSpan.of("TRACE"), HttpMethod.Trace));
 
-    static final Map<ByteArray, HttpVersion> HttpVersions = Map.ofEntries(
-            entry(ByteArray.of("HTTP/1.0"), HttpVersion.HTTP1),
-            entry(ByteArray.of("HTTP/1.1"), HttpVersion.HTTP11),
-            entry(ByteArray.of("HTTP/2.0"), HttpVersion.HTTP2));
+    static final Map<ByteSpan, HttpVersion> HttpVersions = Map.ofEntries(
+            entry(ByteSpan.of("HTTP/1.0"), HttpVersion.HTTP1),
+            entry(ByteSpan.of("HTTP/1.1"), HttpVersion.HTTP11),
+            entry(ByteSpan.of("HTTP/2.0"), HttpVersion.HTTP2));
 
     private int _index;
     private final ByteArray _message;

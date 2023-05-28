@@ -5,6 +5,7 @@ import neat.http.constants.HttpVersion;
 import neat.http.parser.HttpRequestParser;
 import neat.http.parser.HttpRequestParserEOFException;
 import neat.util.ByteArray;
+import neat.util.ByteSpan;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -42,10 +43,10 @@ class HttpRequestParserTest
         var result = parser.parse();
 
         Assertions.assertEquals(expectedMethod, result.Method);
-        Assertions.assertEquals(ByteArray.of("/"), result.Url);
+        Assertions.assertEquals(ByteSpan.of("/"), result.Url);
         Assertions.assertEquals(HttpVersion.HTTP11, result.Version);
 
-        var expectedHeaders = Map.ofEntries(Map.entry(ByteArray.of("Test"), ByteArray.of("Value")));
+        var expectedHeaders = Map.ofEntries(Map.entry(ByteSpan.of("Test"), ByteSpan.of("Value")));
         Assertions.assertEquals(expectedHeaders.keySet(), result.Headers.keySet());
 
         for (var key : expectedHeaders.keySet())

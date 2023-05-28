@@ -13,8 +13,8 @@ import java.util.HashMap;
 public class HttpListener
 {
     private final ServerSocket _serverSocket;
-    private final ByteArray _contentType = ByteArray.of("Content-Type");
-    private final ByteArray _contentLength = ByteArray.of("Content-Length");
+    private final ByteSpan _contentType = ByteSpan.of("Content-Type");
+    private final ByteSpan _contentLength = ByteSpan.of("Content-Length");
 
     public HttpListener(int port) throws IOException
     {
@@ -57,10 +57,8 @@ public class HttpListener
 
     private byte[] receiveExtraContent(Socket sock, HttpMethod method, HashMap<ByteSpan, ByteSpan> headers) throws IOException
     {
-        switch (method)
-        {
-            case Post:
-            case Put:
+        switch (method) {
+            case Post, Put -> {
                 var contentType = headers.get(_contentType);
                 var contentLengthSpan = headers.get(_contentLength);
                 if (contentType == null)
@@ -88,8 +86,10 @@ public class HttpListener
                 }
 
                 return content;
-            default:
+            }
+            default -> {
                 return null;
+            }
         }
     }
 

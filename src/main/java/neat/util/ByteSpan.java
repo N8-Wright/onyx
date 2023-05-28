@@ -2,6 +2,7 @@ package neat.util;
 
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 
 public class ByteSpan
 {
@@ -14,6 +15,12 @@ public class ByteSpan
         Start = start;
         End = end;
         Data = data;
+    }
+
+    public static ByteSpan of(String data)
+    {
+        var bytes = data.getBytes(StandardCharsets.UTF_8);
+        return new ByteSpan(0, bytes.length, bytes);
     }
 
     public int getInt()
